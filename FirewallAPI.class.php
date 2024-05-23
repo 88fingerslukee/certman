@@ -3,10 +3,10 @@
 //	License for all code of this FreePBX module can be found in the license file inside the module directory
 //	Copyright 2014 Schmooze Com Inc.
 //
-namespace FreePBX\modules\Certman;
+namespace FreePBX\modules\Certman2;
 
 /**
- * Implements a trivial API for use with Certman
+ * Implements a trivial API for use with Certman2
  */
 class FirewallAPI {
 
