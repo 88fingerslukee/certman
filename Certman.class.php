@@ -89,7 +89,7 @@ class Certman implements BMO {
 	 * @return array
 	 */
 	public function getAllManagedCertificates() {
-		$sql = "SELECT * FROM certman_certs WHERE managed = 1";
+		$sql = "SELECT * FROM certman2_certs WHERE managed = 1";
 		$sth = $this->db->prepare($sql);
 		$sth->execute();
 		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -97,7 +97,7 @@ class Certman implements BMO {
 	}
 
 	public function getCA() {
-		$sql = "SELECT * FROM certman_cas";
+		$sql = "SELECT * FROM certman2_cas";
 		$sth = $this->db->prepare($sql);
 		$sth->execute();
 		$results = $sth->fetch(PDO::FETCH_ASSOC);
@@ -105,7 +105,7 @@ class Certman implements BMO {
 	}
 
 	public function getAll() {
-		$sql = "SELECT * FROM certman_certs";
+		$sql = "SELECT * FROM certman2_certs";
 		$sth = $this->db->prepare($sql);
 		$sth->execute();
 		$results = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -167,7 +167,7 @@ class Certman implements BMO {
 		$this->validateData($data);
 		$ca = $this->getCA();
 
-		$sql = "INSERT INTO certman_certs (name, ca, country, state, locality, organization, email, keylength, managed) VALUES (:name, :ca, :country, :state, :locality, :organization, :email, :keylength, 1)";
+		$sql = "INSERT INTO certman2_certs (name, ca, country, state, locality, organization, email, keylength, managed) VALUES (:name, :ca, :country, :state, :locality, :organization, :email, :keylength, 1)";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $data['name']);
 		$sth->bindParam(':ca', $ca['id']);
@@ -188,7 +188,7 @@ class Certman implements BMO {
 	public function update($data) {
 		$this->validateData($data);
 
-		$sql = "UPDATE certman_certs SET name = :name, country = :country, state = :state, locality = :locality, organization = :organization, email = :email, keylength = :keylength WHERE id = :id";
+		$sql = "UPDATE certman2_certs SET name = :name, country = :country, state = :state, locality = :locality, organization = :organization, email = :email, keylength = :keylength WHERE id = :id";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $data['name']);
 		$sth->bindParam(':country', $data['country']);
@@ -207,7 +207,7 @@ class Certman implements BMO {
 	 * @param integer $id
 	 */
 	public function delete($id) {
-		$sql = "DELETE FROM certman_certs WHERE id = :id";
+		$sql = "DELETE FROM certman2_certs WHERE id = :id";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':id', $id);
 		$sth->execute();
@@ -251,7 +251,7 @@ class Certman implements BMO {
 
 		$this->add($data);
 
-		$sql = "UPDATE certman_certs SET cert = :cert, key = :key, csr = :csr WHERE name = :name AND ca = :ca";
+		$sql = "UPDATE certman2_certs SET cert = :cert, key = :key, csr = :csr WHERE name = :name AND ca = :ca";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':cert', $certout);
 		$sth->bindParam(':key', $pkeyout);
@@ -284,7 +284,7 @@ class Certman implements BMO {
 		openssl_pkey_export($privkey, $pkeyout);
 		openssl_csr_export($csr, $csrout);
 
-		$sql = "INSERT INTO certman_certs (name, ca, country, state, locality, organization, email, keylength, managed, csr, key) VALUES (:name, :ca, :country, :state, :locality, :organization, :email, 2048, 1, :csr, :key)";
+		$sql = "INSERT INTO certman2_certs (name, ca, country, state, locality, organization, email, keylength, managed, csr, key) VALUES (:name, :ca, :country, :state, :locality, :organization, :email, 2048, 1, :csr, :key)";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $name);
 		$sth->bindParam(':ca', $ca);
@@ -365,7 +365,7 @@ class Certman implements BMO {
 		openssl_pkey_export($privkey, $pkeyout);
 		openssl_csr_export($csr, $csrout);
 
-		$sql = "INSERT INTO certman_cas (name, country, state, locality, organization, email, keylength, cert, key, csr) VALUES (:name, :country, :state, :locality, :organization, :email, :keylength, :cert, :key, :csr)";
+		$sql = "INSERT INTO certman2_cas (name, country, state, locality, organization, email, keylength, cert, key, csr) VALUES (:name, :country, :state, :locality, :organization, :email, :keylength, :cert, :key, :csr)";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $name);
 		$sth->bindParam(':country', $country);
@@ -387,7 +387,7 @@ class Certman implements BMO {
 	 * @return array
 	 */
 	public function getAllCertificatesByCA($ca) {
-		$sql = "SELECT * FROM certman_certs WHERE ca = :ca";
+		$sql = "SELECT * FROM certman2_certs WHERE ca = :ca";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':ca', $ca);
 		$sth->execute();
@@ -412,7 +412,7 @@ class Certman implements BMO {
 	 * @return array
 	 */
 	public function getCertificate($id) {
-		$sql = "SELECT * FROM certman_certs WHERE id = :id";
+		$sql = "SELECT * FROM certman2_certs WHERE id = :id";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':id', $id);
 		$sth->execute();
@@ -426,7 +426,7 @@ class Certman implements BMO {
 	 * @param array $data
 	 */
 	public function updateCertificate($data) {
-		$sql = "UPDATE certman_certs SET name = :name, country = :country, state = :state, locality = :locality, organization = :organization, email = :email, keylength = :keylength, managed = :managed WHERE id = :id";
+		$sql = "UPDATE certman2_certs SET name = :name, country = :country, state = :state, locality = :locality, organization = :organization, email = :email, keylength = :keylength, managed = :managed WHERE id = :id";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $data['name']);
 		$sth->bindParam(':country', $data['country']);
@@ -447,7 +447,7 @@ class Certman implements BMO {
 	 * @return array
 	 */
 	public function getIssuerCA($issuer) {
-		$sql = "SELECT * FROM certman_cas WHERE name = :name";
+		$sql = "SELECT * FROM certman2_cas WHERE name = :name";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $issuer);
 		$sth->execute();
@@ -462,7 +462,7 @@ class Certman implements BMO {
 	 * @return boolean
 	 */
 	public function certificateExists($name) {
-		$sql = "SELECT COUNT(*) FROM certman_certs WHERE name = :name";
+		$sql = "SELECT COUNT(*) FROM certman2_certs WHERE name = :name";
 		$sth = $this->db->prepare($sql);
 		$sth->bindParam(':name', $name);
 		$sth->execute();
@@ -476,7 +476,7 @@ class Certman implements BMO {
 	 * @return boolean
 	 */
 	public function checkCAexists() {
-		$sql = "SELECT COUNT(*) FROM certman_cas";
+		$sql = "SELECT COUNT(*) FROM certman2_cas";
 		$sth = $this->db->prepare($sql);
 		$sth->execute();
 		$count = $sth->fetchColumn();

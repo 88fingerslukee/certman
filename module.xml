@@ -1,82 +1,83 @@
 <module>
-	<rawname>certman2</rawname>
-	<name>Certificate Manager 2</name>
-	<repo>standard</repo>
-	<version>1.0.0</version>
-	<publisher>Lucas Burdick</publisher>
-	<license>AGPLv3+</license>
-	<licenselink>http://www.gnu.org/licenses/agpl-3.0.txt</licenselink>
-	<menuitems>
-		<certman>Certificate Management 2</certman>
-	</menuitems>
-	<description>
-		Certificate Manager for Asterisk. Used for TLS, DTLS connection (think WebRTC and secure traffic)
-	</description>
-	<more-info>https://wiki.freepbx.org/display/FPG/Certificate+Management+Module</more-info>
-	<changelog>
-		*1.0.0* Updated Original Certman to include LetsEncrypt DNS Challenges
-	</changelog>
-	<category>Admin</category>
-	<supported>
-		<version>16.0</version>
-	</supported>
-	<hooks>
-		<framework class="Chown" namespace="FreePBX\Console\Command">
-			<method callingMethod="fwcChownFiles" class="Certman" namespace="FreePBX\modules">chownFreepbx</method>
-		</framework>
-	</hooks>
-	<database>
-		<table name="certman_mapping">
-			<field name="id" type="string" length="20" primaryKey="true"/>
-			<field name="cid" type="integer" notnull="false"/>
-			<field name="verify" type="string" length="255" notnull="false"/>
-			<field name="setup" type="string" length="45" notnull="false"/>
-			<field name="rekey" type="integer" notnull="false"/>
-			<field name="auto_generate_cert" type="boolean" default="0"/>
-		</table>
-		<table name="certman_csrs">
-			<field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
-			<field name="basename" type="string" length="190"/>
-			<key name="basename" type="unique">
-				<column name="basename"/>
-			</key>
-		</table>
-		<table name="certman_certs">
-			<field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
-			<field name="caid" type="integer" notnull="false"/>
-			<field name="basename" type="string" length="190"/>
-			<field name="description" type="string" length="255" notnull="false"/>
-			<field name="type" type="string" length="2" default="ss"/>
-			<field name="default" type="boolean" default="0"/>
-			<field name="additional" type="blob" notnull="false"/>
-			<key name="basename_UNIQUE" type="unique">
-				<column name="basename"/>
-			</key>
-			<key name="basename" type="unique">
-				<column name="basename"/>
-			</key>
-		</table>
-		<table name="certman_cas">
-			<field name="uid" type="integer" primaryKey="true" autoincrement="true"/>
-			<field name="basename" type="string" length="190"/>
-			<field name="cn" type="string" length="255"/>
-			<field name="on" type="string" length="255"/>
-			<field name="passphrase" type="string" length="255" notnull="false"/>
-			<field name="salt" type="string" length="255" notnull="false"/>
-			<key name="basename" type="unique">
-				<column name="basename"/>
-			</key>
-		</table>
-	</database>
-	<depends>
-		<phpversion>5.6.0</phpversion>
-		<module>core ge 15.0.9.61</module>
-		<version>14.0.3</version>
-	</depends>
-	<console>
-		<command>
-			<name>certificates</name>
-			<class>Certman2</class>
-		</command>
-	</console>
+    <rawname>certman2</rawname>
+    <name>Certificate Manager 2</name>
+    <repo>standard</repo>
+    <version>1.0.0</version>
+    <publisher>Lucas Burdick</publisher>
+    <license>AGPLv3+</license>
+    <licenselink>http://www.gnu.org/licenses/agpl-3.0.txt</licenselink>
+    <menuitems>
+        <certman2>Certificate Management 2</certman2>
+    </menuitems>
+    <description>
+        Certificate Manager for Asterisk. Used for TLS, DTLS connection (think WebRTC and secure traffic)
+    </description>
+    <more-info>https://wiki.freepbx.org/display/FPG/Certificate+Management+Module</more-info>
+    <changelog>
+        *1.0.0* Updated Original Certman to include LetsEncrypt DNS Challenges
+    </changelog>
+    <category>Admin</category>
+    <supported>
+        <version>16.0</version>
+    </supported>
+    <hooks>
+        <framework class="Chown" namespace="FreePBX\Console\Command">
+            <method callingMethod="fwcChownFiles" class="Certman2" namespace="FreePBX\modules">chownFreepbx</method>
+        </framework>
+    </hooks>
+    <database>
+        <table name="certman2_mapping">
+            <field name="id" type="string" length="20" primaryKey="true"/>
+            <field name="cid" type="integer" notnull="false"/>
+            <field name="verify" type="string" length="255" notnull="false"/>
+            <field name="setup" type="string" length="45" notnull="false"/>
+            <field name="rekey" type="integer" notnull="false"/>
+            <field name="auto_generate_cert" type="boolean" default="0"/>
+        </table>
+        <table name="certman2_csrs">
+            <field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
+            <field name="basename" type="string" length="190"/>
+            <key name="basename" type="unique">
+                <column name="basename"/>
+            </key>
+        </table>
+        <table name="certman2_certs">
+            <field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
+            <field name="caid" type="integer" notnull="false"/>
+            <field name="basename" type="string" length="190"/>
+            <field name="description" type="string" length="255" notnull="false"/>
+            <field name="type" type="string" length="2" default="ss"/>
+            <field name="default" type="boolean" default="0"/>
+            <field name="additional" type="blob" notnull="false"/>
+            <key name="basename_UNIQUE" type="unique">
+                <column name="basename"/>
+            </key>
+            <key name="basename" type="unique">
+                <column name="basename"/>
+            </key>
+        </table>
+        <table name="certman2_cas">
+            <field name="uid" type="integer" primaryKey="true" autoincrement="true"/>
+            <field name="basename" type="string" length="190"/>
+            <field name="cn" type="string" length="255"/>
+            <field name="on" type="string" length="255"/>
+            <field name="passphrase" type="string" length="255" notnull="false"/>
+            <field name="salt" type="string" length="255" notnull="false"/>
+            <key name="basename" type="unique">
+                <column name="basename"/>
+            </key>
+        </table>
+    </database>
+    <depends>
+        <phpversion>5.6.0</phpversion>
+        <module>core ge 15.0.9.61</module>
+        <version>14.0.3</version>
+    </depends>
+    <console>
+        <command>
+            <name>certificates</name>
+            <class>Certman2</class>
+        </command>
+    </console>
 </module>
+

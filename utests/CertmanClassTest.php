@@ -22,7 +22,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -38,7 +38,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], "pjsip", $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);
@@ -76,7 +76,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -92,7 +92,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], 'nothing', $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);
@@ -131,7 +131,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -160,7 +160,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], "pjsip", $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);
@@ -199,7 +199,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -215,7 +215,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], "pjsip", $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);
@@ -255,7 +255,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -284,7 +284,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], "pjsip", $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);
@@ -302,7 +302,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 			'rekey' => 0,
 			'auto_generate_cert' => 1,
 		];
-		$sql = "INSERT INTO certman_mapping (
+		$sql = "INSERT INTO certman2_mapping (
 			id,	cid, verify, setup, rekey, auto_generate_cert
 		) VALUES (?, ?, ?, ?, ?, ?)";
 		$sth = self::$freepbx->Database->prepare($sql);
@@ -337,7 +337,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -353,7 +353,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], "pjsip", $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);
@@ -380,7 +380,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$fname = self::$faker->firstName;
 		$lname = self::$faker->lastName;
 		$testExtension = array(
-			"username" => 'certman-'.self::$faker->userName,
+			"username" => 'certman2-'.self::$faker->userName,
 			"password" => self::$faker->password,
 			"fname" => $fname,
 			"lname" => $lname,
@@ -407,7 +407,7 @@ class CertmanClassTest extends \PHPUnit_Framework_TestCase
 		$settings = \FreePBX::Core()->generateDefaultDeviceSettings(
 			'pjsip', 
 			$testExtension['extension'],
-			'certman test'
+			'certman2 test'
 		);
 		\FreePBX::Core()->addDevice($testExtension['extension'], "pjsip", $settings);
 		$dev = \FreePBX::Core()->getDevice($testExtension['extension']);

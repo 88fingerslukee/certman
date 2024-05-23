@@ -1,10 +1,10 @@
 <?php 
 
-namespace FreepPBX\certman\utests;
+namespace FreepPBX\certman2\utests;
 
 require_once('../api/utests/ApiBaseTestCase.php');
 
-use FreePBX\modules\certman;
+use FreePBX\modules\certman2;
 use Exception;
 use FreePBX\modules\Api\utests\ApiBaseTestCase;
 
@@ -12,7 +12,7 @@ use FreePBX\modules\Api\utests\ApiBaseTestCase;
  * CertmanGqlApiTest
  */
 class CertmanGqlApiTest extends ApiBaseTestCase {
-    protected static $certman;
+    protected static $certman2;
         
     /**
      * setUpBeforeClass
@@ -21,7 +21,7 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
      */
     public static function setUpBeforeClass() {
       parent::setUpBeforeClass();
-      self::$certman = self::$freepbx->Certman;
+      self::$certman2 = self::$freepbx->Certman;
     }
         
     /**
@@ -152,16 +152,16 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
   * @return void
   */
  public function test_uploadSSLCertificate_certificate_already_exists_should_return_false(){
-   $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+   $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
 		->disableOriginalConstructor()
 		->disableOriginalClone()
 		->setMethods(array('uploadSSLCertificate'))
       ->getMock();
       
-	$mockcertman->method('uploadSSLCertificate')
+	$mockcertman2->method('uploadSSLCertificate')
 		->willReturn(array('status' => false, 'message' => ('Certificate name is already in use')));
     
-   self::$freepbx->PKCS->setcertObj($mockcertman); 
+   self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
    $response = $this->request("mutation {
        uploadSSLCertificate(input: { name: \"test\" 
@@ -188,16 +188,16 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
   * @return void
   */
  public function test_uploadSSLCertificate_no_private_key_should_return_false(){
-   $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+   $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
 		->disableOriginalConstructor()
 		->disableOriginalClone()
 		->setMethods(array('uploadSSLCertificate'))
       ->getMock();
       
-	$mockcertman->method('uploadSSLCertificate')
+	$mockcertman2->method('uploadSSLCertificate')
 		->willReturn(array('status' => false, 'message' => ('No Private key to reference. Try generating a CSR first.')));
     
-   self::$freepbx->PKCS->setcertObj($mockcertman); 
+   self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
    $response = $this->request("mutation {
        uploadSSLCertificate(input: { name: \"test\" 
@@ -224,16 +224,16 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
   * @return void
   */
  public function test_uploadSSLCertificate_all_good_should_return_false(){
-   $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+   $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
 		->disableOriginalConstructor()
 		->disableOriginalClone()
 		->setMethods(array('uploadSSLCertificate'))
       ->getMock();
       
-	$mockcertman->method('uploadSSLCertificate')
+	$mockcertman2->method('uploadSSLCertificate')
 		->willReturn(array('status' => true, 'message' => ('Added new certificate.')));
     
-   self::$freepbx->PKCS->setcertObj($mockcertman); 
+   self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
    $response = $this->request("mutation {
       uploadSSLCertificate(input: { name: \"test\" 
@@ -260,16 +260,16 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
     * @return void
     */
    public function test_deleteCertificate_all_good_should_return_true(){
-      $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+      $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
 		->disableOriginalConstructor()
 		->disableOriginalClone()
 		->setMethods(array('removeCertificate'))
       ->getMock();
       
-	$mockcertman->method('removeCertificate')
+	$mockcertman2->method('removeCertificate')
 		->willReturn(true);
     
-   self::$freepbx->PKCS->setcertObj($mockcertman); 
+   self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
    $response = $this->request("mutation{
       deleteCertificate(input: {cid : \"2\"}){
@@ -284,16 +284,16 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
    }
 
    public function test_deleteCertificate_when_false_should_return_false(){
-      $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+      $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
 		->disableOriginalConstructor()
 		->disableOriginalClone()
 		->setMethods(array('removeCertificate'))
       ->getMock();
       
-	 $mockcertman->method('removeCertificate')
+	 $mockcertman2->method('removeCertificate')
 		->willReturn(false);
     
-   self::$freepbx->PKCS->setcertObj($mockcertman); 
+   self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
    $response = $this->request("mutation{
       deleteCertificate(input: {cid : \"2\"}){
@@ -313,19 +313,19 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
     * @return void
     */
    public function test_updating_certificate_as_default_should_return_true(){
-      $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+      $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
          ->disableOriginalConstructor()
          ->disableOriginalClone()
          ->setMethods(array('getCertificateDetails','makeCertDefault'))
          ->getMock();
          
-      $mockcertman->method('getCertificateDetails')
+      $mockcertman2->method('getCertificateDetails')
          ->willReturn(true);
       
-      $mockcertman->method('makeCertDefault')
+      $mockcertman2->method('makeCertDefault')
          ->willReturn(true);
       
-      self::$freepbx->PKCS->setcertObj($mockcertman); 
+      self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
       $response = $this->request("mutation{
                                     updateDefaultCertificate(input: {cid : \"1\"}){
@@ -347,16 +347,16 @@ class CertmanGqlApiTest extends ApiBaseTestCase {
     * @return void
     */
    public function test_updating_certificate_as_default_for_invalid_cert_id_should_return_false(){
-      $mockcertman = $this->getMockBuilder(\FreePBX\modules\certman\Certman::class)
+      $mockcertman2 = $this->getMockBuilder(\FreePBX\modules\certman2\Certman::class)
          ->disableOriginalConstructor()
          ->disableOriginalClone()
          ->setMethods(array('getCertificateDetails'))
          ->getMock();
          
-      $mockcertman->method('getCertificateDetails')
+      $mockcertman2->method('getCertificateDetails')
          ->willReturn(false);
       
-      self::$freepbx->PKCS->setcertObj($mockcertman); 
+      self::$freepbx->PKCS->setcertObj($mockcertman2); 
 
       $response = $this->request("mutation{
                                     updateDefaultCertificate(input: {cid : \"1454\"}){

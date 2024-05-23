@@ -9,7 +9,7 @@ if(!empty($message)) {
 				<div class="fpbx-container">
 				<h1><?php echo _("Certificate Settings") . ': ' . $cert['basename']?></h1>
 				<?php echo !empty($messagehtml) ? $messagehtml : "" ?>
-					<form class="fpbx-submit" autocomplete="false" name="frm_certman_edit" action="config.php?display=certman&action=view&id=<?php echo $cert['cid']?>" method="post" data-fpbx-delete="config.php?display=certman&amp;type=cert&amp;action=delete&amp;id=<?php echo $cert['cid']?>" role="form">
+					<form class="fpbx-submit" autocomplete="false" name="frm_certman2_edit" action="config.php?display=certman2&action=view&id=<?php echo $cert['cid']?>" method="post" data-fpbx-delete="config.php?display=certman2&amp;type=cert&amp;action=delete&amp;id=<?php echo $cert['cid']?>" role="form">
 					<input id="certtype" type="hidden" name="type" value="update">
 					<input id="cid" type="hidden" name="cid" value="<?php echo $cert['cid']?>">
 						  <div class="display full-border">

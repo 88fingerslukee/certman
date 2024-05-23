@@ -12,7 +12,7 @@ if(!empty($message)) {
 			<div class="col-sm-12">
 				<div class="fpbx-container">
 					<div class="display full-border" id='certpage'>
-						<form class="fpbx-submit" name="frm_certman" action="config.php?display=certman" method="post" enctype="multipart/form-data">
+						<form class="fpbx-submit" name="frm_certman2" action="config.php?display=certman2" method="post" enctype="multipart/form-data">
 							<input id="certaction" type="hidden" name="certaction" value="add">
 							<input id="certtype" type="hidden" name="type" value="csr">
 							<div class="element-container">

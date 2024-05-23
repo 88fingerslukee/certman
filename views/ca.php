@@ -13,7 +13,7 @@ if($caExists){
 	<h2><?php echo $caExists ? _("Edit Certificate Authority Settings") : _("New Certificate Authority Settings")?></h2>
 	<?php echo !empty($caehtml) ? $caehtml : "" ?>
 	<div id = "caform" class="<?php echo !empty($cafclass) ? $cafclass : ""?>">
-		<form autocomplete="off" class="fpbx-submit" name="editCAS" method="post" action="config.php?display=certman" data-fpbx-delete="config.php?display=certman&amp;action=ca&amp;type=delete" enctype="multipart/form-data">
+		<form autocomplete="off" class="fpbx-submit" name="editCAS" method="post" action="config.php?display=certman2" data-fpbx-delete="config.php?display=certman2&amp;action=ca&amp;type=delete" enctype="multipart/form-data">
 		<input id="catype" type="hidden" name="type" value="generate">
 		<input id="action" type="hidden" name="action" value="ca">
 		<input id="replace" type="hidden" name="replace" value="no">

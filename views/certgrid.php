@@ -5,21 +5,21 @@
 			<i class="fa fa-plus">&nbsp;</i><?php echo _('New Certificate')?> <span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<li><a href="?display=certman&amp;action=add&amp;type=le"><i class="fa fa-plus"></i> <strong><?php echo _("Generate Let's Encrypt Certificate")?></strong></a></li>
-			<li><a href="?display=certman&amp;action=add&amp;type=up"><i class="fa fa-plus"></i> <strong><?php echo _("Upload Certificate")?></strong></a></li>
-			<li><a href="?display=certman&amp;action=add&amp;type=ss"><i class="fa fa-plus"></i> <strong><?php echo _("Generate Self-Signed Certificate")?></strong></a></li>
+			<li><a href="?display=certman2&amp;action=add&amp;type=le"><i class="fa fa-plus"></i> <strong><?php echo _("Generate Let's Encrypt Certificate")?></strong></a></li>
+			<li><a href="?display=certman2&amp;action=add&amp;type=up"><i class="fa fa-plus"></i> <strong><?php echo _("Upload Certificate")?></strong></a></li>
+			<li><a href="?display=certman2&amp;action=add&amp;type=ss"><i class="fa fa-plus"></i> <strong><?php echo _("Generate Self-Signed Certificate")?></strong></a></li>
 		</ul>
 	</div>
 	<?php if(!$csr) { ?>
-		<a href="?display=certman&amp;action=add&amp;type=csr" class="btn btn-primary"><i class="fa fa-plus"></i> <?php echo _("Generate CSR")?></a>
+		<a href="?display=certman2&amp;action=add&amp;type=csr" class="btn btn-primary"><i class="fa fa-plus"></i> <?php echo _("Generate CSR")?></a>
 	<?php } else { ?>
-		<a href="?display=certman&amp;quietmode=1&amp;action=download&amp;type=csr" class="btn btn-primary"><i class="fa fa-download"></i> <?php echo _("Download CSR")?></a>
-		<a href="?display=certman&amp;certaction=delete&amp;type=csr" class="btn btn-danger" id="delCSR"><i class="fa fa-times"></i> <?php echo _("Delete CSR")?></a>
+		<a href="?display=certman2&amp;quietmode=1&amp;action=download&amp;type=csr" class="btn btn-primary"><i class="fa fa-download"></i> <?php echo _("Download CSR")?></a>
+		<a href="?display=certman2&amp;certaction=delete&amp;type=csr" class="btn btn-danger" id="delCSR"><i class="fa fa-times"></i> <?php echo _("Delete CSR")?></a>
 	<?php } ?>
 	<?php if($ca) { ?>
-		<a href="?display=certman&amp;certaction=delete&amp;type=ca" class="btn btn-danger" id="delCA"><i class="fa fa-times"></i> <?php echo _("Delete Self-Signed CA")?></a>
+		<a href="?display=certman2&amp;certaction=delete&amp;type=ca" class="btn btn-danger" id="delCA"><i class="fa fa-times"></i> <?php echo _("Delete Self-Signed CA")?></a>
 	<?php } ?>
-	<a href="?display=certman&amp;certaction=importlocally" class="btn btn-primary"><?php echo _("Import Locally")?></a>
+	<a href="?display=certman2&amp;certaction=importlocally" class="btn btn-primary"><?php echo _("Import Locally")?></a>
 </div>
 <table data-toolbar="#toolbar-all" data-maintain-selected="true" data-show-columns="true" data-show-toggle="true" data-toggle="table" data-pagination="true" data-search="true" class="table table-striped">
 	<thead>
@@ -50,9 +50,9 @@
 					}?>
 				</td>
 				<td><div class="default-check <?php echo !empty($cert['default']) ? "check" : ""?>" data-id="<?php echo $cert['cid']?>"><i class="fa fa-check" aria-hidden="true"></i></div></td>
-				<td><a href='?display=certman&amp;action=view&amp;id=<?php echo $cert['cid']?>'>
+				<td><a href='?display=certman2&amp;action=view&amp;id=<?php echo $cert['cid']?>'>
 					<i class="fa fa-edit"></i></a>&nbsp;&nbsp;
-					<a class="deletecert" href='config.php?display=certman&amp;certaction=delete&amp;type=cert&amp;id=<?php echo $cert['cid']?>'>
+					<a class="deletecert" href='config.php?display=certman2&amp;certaction=delete&amp;type=cert&amp;id=<?php echo $cert['cid']?>'>
 					<i class="fa fa-trash"></i></a>
 				</td>
 			</tr>

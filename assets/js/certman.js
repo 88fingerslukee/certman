@@ -12,7 +12,7 @@ $("table").on("post-body.bs.table", function () {
 	$(".default-check").click(function() {
 		var $this = this;
 		if(confirm(_("Are you sure you want to make this certificate the system default?"))) {
-			$.post("ajax.php?module=certman&command=makeDefault", {id: $(this).data("id")}, function( data ) {
+			$.post("ajax.php?module=certman2&command=makeDefault", {id: $(this).data("id")}, function( data ) {
 				if(data.status) {
 					$(".default-check").removeClass("check");
 					$($this).addClass("check");
@@ -49,11 +49,11 @@ $(function() {
 		if($(this).prop("checked")){
 			$("#pkdiv").removeClass("hidden");
 			$("#cdiv").removeClass("hidden");
-			$("#certmanSubmit").val(_("Upload Certificate"));
+			$("#certman2Submit").val(_("Upload Certificate"));
 		}else{
 			$("#pkdiv").addClass("hidden");
 			$("#cdiv").addClass("hidden");
-			$("#certmanSubmit").val(_("Generate Certificate"));
+			$("#certman2Submit").val(_("Generate Certificate"));
 		}
 	});
 	//CA Show/Hide
@@ -111,7 +111,7 @@ $(function() {
 
 		var stop = false,
 				type = $("#certtype").val();
-		$("form[name=frm_certman] input[type=\"text\"]").each( function(i, v) {
+		$("form[name=frm_certman2] input[type=\"text\"]").each( function(i, v) {
 			if($(this).attr("name") == "ST" || $(this).attr("name") == "L" || $(this).attr("name") == "OU") {
 				return true;
 			}
