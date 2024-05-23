@@ -1,49 +1,20 @@
 <module>
-	<rawname>certman</rawname>
-	<name>Certificate Manager</name>
+	<rawname>certman2</rawname>
+	<name>Certificate Manager 2</name>
 	<repo>standard</repo>
-	<version>16.0.30</version>
-	<publisher>Sangoma Technologies Corporation</publisher>
+	<version>1.0.0</version>
+	<publisher>Lucas Burdick</publisher>
 	<license>AGPLv3+</license>
 	<licenselink>http://www.gnu.org/licenses/agpl-3.0.txt</licenselink>
 	<menuitems>
-		<certman>Certificate Management</certman>
+		<certman>Certificate Management 2</certman>
 	</menuitems>
 	<description>
 		Certificate Manager for Asterisk. Used for TLS, DTLS connection (think WebRTC and secure traffic)
 	</description>
 	<more-info>https://wiki.freepbx.org/display/FPG/Certificate+Management+Module</more-info>
 	<changelog>
-		*16.0.30* Packaging of ver 16.0.30
-		*16.0.29* FREEI-114 certificate update notification change in dashboard 
-		*16.0.28* FREEPBX-24228 
-		*16.0.27* FREEPBX-24181 
-		*16.0.26* FREEI-5808 
-		*16.0.25* FREEPBX-23937 
-		*16.0.24* FREEPBX-23711 
-		*16.0.23* FREEI-4900 LE not updating when cert is expired 
-		*16.0.22* Reverting Bootstrap and dependent libs fixes 
-		*16.0.21* FREEI-4793 
-		*16.0.20* Fixing FREEPBX-23248 
-		*16.0.19* FREEI-4037 Add option to remove DST Root CA X3 from LE certificate bundle 
-		*16.0.18* FREEI-3995 Swaped implode() function parameters 
-		*16.0.17* FREEPBX-22849 Fix for Let'\''s encrypt root CA 
-		*16.0.16* FREEI-3758 Created new GQL API to update certificate to default 
-		*16.0.15* Adding an option to mark uploaded ssl certificate as default 
-		*16.0.14* FREEPBX-22660 Changed array key name cid to certificate while restoring dtls options 
-		*16.0.13* FREEPBX-20610 added logic to write out proper fullchain file 
-		*16.0.12* FREEPBX-21681 
-		*16.0.11* Packaging of ver 16.0.11
-		*16.0.10* Packaging of ver 16.0.10
-		*16.0.9* FREEI-2599 New extension created with multiple entries for media_encryption 
-		*16.0.8* FREEPBX-22123 / add config hints when cert request fails 
-		*16.0.7* FREEPBX-22106-format-letsencrypt-output-display-error-messages 
-		*16.0.6* FREEI-2109 added option to do force update 
-		*16.0.5* Forceupdatebranch 
-		*16.0.4* FREEPBX-21683 fwconsole certificate update error silently shuts down firewall module 
-		*16.0.3* FREEPBX-21600 fixing -SRTP selection was Enabling DTLS 
-		*16.0.2* Bugfix/FREEI-1464 
-		*16.0.1alpha* 16.0.1 alpha release
+		*1.0.0* Updated Original Certman to include LetsEncrypt DNS Challenges
 	</changelog>
 	<category>Admin</category>
 	<supported>
@@ -105,7 +76,7 @@
 	<console>
 		<command>
 			<name>certificates</name>
-			<class>Certman</class>
+			<class>Certman2</class>
 		</command>
 	</console>
 </module>
