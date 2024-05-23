@@ -1,16 +1,16 @@
 <?php
 
-namespace FreePBX\modules\Certman\Api\Gql;
+namespace FreePBX\modules\Certman2\Api\Gql;
 
 use GraphQLRelay\Relay;
 use GraphQL\Type\Definition\Type;
 use FreePBX\modules\Api\Gql\Base;
 
 /**
- * Certman
+ * Certman2
  */
-class Certman extends Base {
-	protected $module = 'certman';
+class Certman2 extends Base {
+	protected $module = 'Certman2';
 	
 	/**
 	 * queryCallback
@@ -22,7 +22,7 @@ class Certman extends Base {
 		return function(){
 		 return [
 			'fetchCSRFile' => [
-				'type' => $this->typeContainer->get('certman')->getObject(),
+				'type' => $this->typeContainer->get('Certman2')->getObject(),
 				'description' => _('Download the CSR Certificate'),
 				'args' => Relay::connectionArgs(),
 				'resolve' => function($root) {
@@ -71,7 +71,7 @@ class Certman extends Base {
 						'inputFields' => [],
 						'outputFields' => $this->getOutputFields(),
 						'mutateAndGetPayload' => function() {
-							$status = $this->freepbx->certman->removeCSR(true);
+							$status = $this->freepbx->Certman2->removeCSR(true);
 							if($status) {
 								return array('status' => true, 'message' => _('Successfully deleted the Certificate Signing Request'));
 							} else {
@@ -108,16 +108,16 @@ class Certman extends Base {
 	 * @return void
 	 */
 	public function initializeTypes() {
-		$certman = $this->typeContainer->create('certman');
-		$certman->setDescription(_('Generate Certificate'));
+		$Certman2 = $this->typeContainer->create('Certman2');
+		$Certman2->setDescription(_('Generate Certificate'));
 
-		$certman->addInterfaceCallback(function() {
+		$Certman2->addInterfaceCallback(function() {
 			return [$this->getNodeDefinition()['nodeInterface']];
 		});
 		
-		$certman->addFieldCallback(function() {
+		$Certman2->addFieldCallback(function() {
 			return [
-				'id' => Relay::globalIdField('certman', function($row) {
+				'id' => Relay::globalIdField('Certman2', function($row) {
 					return "";
 				}),	
 				'message' =>[
@@ -258,12 +258,12 @@ class Certman extends Base {
       $this->PKCS = $this->freepbx->PKCS;
       $location = $this->PKCS->getKeysLocation();
 		$name = basename($params['name']);
-		if($this->freepbx->certman->checkCertificateName($name) || $this->freepbx->certman->checkCSRName($name)) {
+		if($this->freepbx->Certman2->checkCertificateName($name) || $this->freepbx->Certman2->checkCSRName($name)) {
 			return array('status' => false, 'message' => _('Certificate name is already in use'));
 		}
 		try {
 			$this->PKCS->createCSR($name, $params);
-			$this->freepbx->certman->saveCSR($name);
+			$this->freepbx->Certman2->saveCSR($name);
 		} catch(Exception $e) {
 			return array('status' => false, 'message' => sprintf(_('Unable to create CSR: %s'),$e->getMessage()));
 		}
@@ -295,7 +295,7 @@ class Certman extends Base {
 	 */
 	private function downloadCSR(){
 		$this->PKCS = $this->freepbx->PKCS;
-		$csrs = $this->freepbx->certman->getAllManagedCSRs();
+		$csrs = $this->freepbx->Certman2->getAllManagedCSRs();
 		if(empty($csrs)){
 			return ['status'=> false, 'message' => _('Sorry unable to find any CSR file')];
 		}
@@ -344,7 +344,7 @@ class Certman extends Base {
 	 * @return void
 	 */
 	private function updateDefaultCertificate($input){	
-		$status = $this->freepbx->certman->makeCertDefault($input['cid']);
+		$status = $this->freepbx->Certman2->makeCertDefault($input['cid']);
 
 		if($status) {
 			return array('status' => true, 'message' => _('Successfully updated certificate as default'));
