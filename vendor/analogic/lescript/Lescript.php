@@ -136,6 +136,35 @@ class Lescript
                 $this->log("Waiting for DNS to propagate");
                 sleep(30); // Wait for DNS propagation
 
+                // send request to challenge
+                $allowed_loops = 5;
+                $result = null;
+                while ($allowed_loops > 0) {
+                    $result = $this->signedRequest(
+                        $challenge['url'],
+                        array("keyAuthorization" => $challenge['token'] . '.' . Base64UrlSafeEncoder::encode(hash('sha256', $challenge['token'] . '.' . Base64UrlSafeEncoder::encode($accountKeyDetails["rsa"]["n"]) . '.' . Base64UrlSafeEncoder::encode($accountKeyDetails["rsa"]["e"]), true)))
+                    );
+
+                    if (empty($result['status']) || $result['status'] == "invalid") {
+                        throw new RuntimeException("Verification ended with error: " . json_encode($result));
+                    }
+
+                    if ($result['status'] != "pending") {
+                        break;
+                    }
+
+                    $this->log("Verification pending, sleeping 1s");
+                    sleep(1);
+
+                    $allowed_loops--;
+                }
+
+                if ($allowed_loops == 0 && $result['status'] === "pending") {
+                    throw new RuntimeException("Verification timed out");
+                }
+
+                $this->log("Verification ended with status: ${result['status']}");
+
             } else {
                 // 2. saving authentication token for web verification
                 // ---------------------------------------------------
@@ -170,39 +199,37 @@ class Lescript
                 }
 
                 $this->log("Sending request to challenge");
-            }
 
-            // send request to challenge
-            $allowed_loops = 5;
-            $result = null;
-            while ($allowed_loops > 0) {
+                // send request to challenge
+                $allowed_loops = 5;
+                $result = null;
+                while ($allowed_loops > 0) {
 
-                $result = $this->signedRequest(
-                    $challenge['url'],
-                    array("keyAuthorization" => $payload)
-                );
+                    $result = $this->signedRequest(
+                        $challenge['url'],
+                        array("keyAuthorization" => $payload)
+                    );
 
-                if (empty($result['status']) || $result['status'] == "invalid") {
-                    throw new RuntimeException("Verification ended with error: " . json_encode($result));
+                    if (empty($result['status']) || $result['status'] == "invalid") {
+                        throw new RuntimeException("Verification ended with error: " . json_encode($result));
+                    }
+
+                    if ($result['status'] != "pending") {
+                        break;
+                    }
+
+                    $this->log("Verification pending, sleeping 1s");
+                    sleep(1);
+
+                    $allowed_loops--;
                 }
 
-                if ($result['status'] != "pending") {
-                    break;
+                if ($allowed_loops == 0 && $result['status'] === "pending") {
+                    throw new RuntimeException("Verification timed out");
                 }
 
-                $this->log("Verification pending, sleeping 1s");
-                sleep(1);
+                $this->log("Verification ended with status: ${result['status']}");
 
-                $allowed_loops--;
-            }
-
-            if ($allowed_loops == 0 && $result['status'] === "pending") {
-                throw new RuntimeException("Verification timed out");
-            }
-
-            $this->log("Verification ended with status: ${result['status']}");
-
-            if ($this->challenge !== 'dns-01') {
                 @unlink($tokenPath);
             }
         }
@@ -452,6 +479,105 @@ keyUsage = nonRepudiation, digitalSignature, keyEncipherment');
     }
 }
 
+class DnsChallenge
+{
+    private $provider;
+    private $credentials;
+
+    public function __construct($provider, $credentials)
+    {
+        $this->provider = $provider;
+        $this->credentials = $credentials;
+    }
+
+    public function setRecord($domain, $token, $accountKey)
+    {
+        if ($this->provider === 'cloudflare') {
+            $this->setCloudflareRecord($domain, $token, $accountKey);
+        } else {
+            throw new RuntimeException("DNS provider {$this->provider} not supported");
+        }
+    }
+
+    private function setCloudflareRecord($domain, $token, $accountKey)
+    {
+        $zoneId = $this->getCloudflareZoneId($domain);
+
+        $dnsRecord = [
+            'type' => 'TXT',
+            'name' => '_acme-challenge.' . $domain,
+            'content' => $this->generateDnsContent($token, $accountKey),
+            'ttl' => 120
+        ];
+
+        $response = $this->cloudflareApiRequest("zones/{$zoneId}/dns_records", 'POST', $dnsRecord);
+
+        if (!isset($response['success']) || !$response['success']) {
+            throw new RuntimeException("Failed to create DNS record: " . json_encode($response));
+        }
+    }
+
+    private function getCloudflareZoneId($domain)
+    {
+        $response = $this->cloudflareApiRequest("zones?name={$domain}");
+
+        if (empty($response['result'])) {
+            throw new RuntimeException("Failed to find zone ID for domain {$domain}");
+        }
+
+        return $response['result'][0]['id'];
+    }
+
+    private function generateDnsContent($token, $accountKey)
+    {
+        $accountKeyDetails = openssl_pkey_get_details($accountKey);
+        $header = [
+            "e" => Base64UrlSafeEncoder::encode($accountKeyDetails["rsa"]["e"]),
+            "kty" => "RSA",
+            "n" => Base64UrlSafeEncoder::encode($accountKeyDetails["rsa"]["n"])
+        ];
+        return $token . '.' . Base64UrlSafeEncoder::encode(hash('sha256', json_encode($header), true));
+    }
+
+    private function cloudflareApiRequest($endpoint, $method = 'GET', $data = null)
+    {
+        $url = 'https://api.cloudflare.com/client/v4/' . $endpoint;
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->credentials['apiKey']
+        ];
+
+        $handle = curl_init();
+        curl_setopt($handle, CURLOPT_URL, $url);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+
+        switch ($method) {
+            case 'POST':
+                curl_setopt($handle, CURLOPT_POST, true);
+                curl_setopt($handle, CURLOPT_POSTFIELDS, json_encode($data));
+                break;
+            case 'GET':
+                break;
+            default:
+                throw new RuntimeException("Unsupported HTTP method {$method}");
+        }
+
+        $response = curl_exec($handle);
+
+        if (curl_errno($handle)) {
+            throw new RuntimeException('Curl error: ' . curl_error($handle));
+        }
+
+        $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        if ($httpCode >= 400) {
+            throw new RuntimeException("Cloudflare API request failed with HTTP code {$httpCode}");
+        }
+
+        return json_decode($response, true);
+    }
+}
+
 interface ClientInterface
 {
     /**
@@ -619,23 +745,5 @@ class Base64UrlSafeEncoder
             $input .= str_repeat('=', $padlen);
         }
         return base64_decode(strtr($input, '-_', '+/'));
-    }
-}
-
-class DnsChallenge
-{
-    private $provider;
-    private $credentials;
-
-    public function __construct($provider, $credentials)
-    {
-        $this->provider = $provider;
-        $this->credentials = $credentials;
-    }
-
-    public function setRecord($domain, $token, $accountKey)
-    {
-        // Add logic to set DNS record for the challenge
-        // This would be specific to the DNS provider's API
     }
 }
