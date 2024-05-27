@@ -1,83 +1,112 @@
 <module>
-    <rawname>certman2</rawname>
-    <name>Certificate Manager 2</name>
-    <repo>standard</repo>
-    <version>1.0.0</version>
-    <publisher>Lucas Burdick</publisher>
-    <license>AGPLv3+</license>
-    <licenselink>http://www.gnu.org/licenses/agpl-3.0.txt</licenselink>
-    <menuitems>
-        <certman2>Certificate Management 2</certman2>
-    </menuitems>
-    <description>
-        Certificate Manager for Asterisk. Used for TLS, DTLS connection (think WebRTC and secure traffic)
-    </description>
-    <more-info>https://wiki.freepbx.org/display/FPG/Certificate+Management+Module</more-info>
-    <changelog>
-        *1.0.0* Updated Original Certman to include LetsEncrypt DNS Challenges
-    </changelog>
-    <category>Admin</category>
-    <supported>
-        <version>16.0</version>
-    </supported>
-    <hooks>
-        <framework class="Chown" namespace="FreePBX\Console\Command">
-            <method callingMethod="fwcChownFiles" class="Certman2" namespace="FreePBX\modules">chownFreepbx</method>
-        </framework>
-    </hooks>
-    <database>
-        <table name="certman2_mapping">
-            <field name="id" type="string" length="20" primaryKey="true"/>
-            <field name="cid" type="integer" notnull="false"/>
-            <field name="verify" type="string" length="255" notnull="false"/>
-            <field name="setup" type="string" length="45" notnull="false"/>
-            <field name="rekey" type="integer" notnull="false"/>
-            <field name="auto_generate_cert" type="boolean" default="0"/>
-        </table>
-        <table name="certman2_csrs">
-            <field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
-            <field name="basename" type="string" length="190"/>
-            <key name="basename" type="unique">
-                <column name="basename"/>
-            </key>
-        </table>
-        <table name="certman2_certs">
-            <field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
-            <field name="caid" type="integer" notnull="false"/>
-            <field name="basename" type="string" length="190"/>
-            <field name="description" type="string" length="255" notnull="false"/>
-            <field name="type" type="string" length="2" default="ss"/>
-            <field name="default" type="boolean" default="0"/>
-            <field name="additional" type="blob" notnull="false"/>
-            <key name="basename_UNIQUE" type="unique">
-                <column name="basename"/>
-            </key>
-            <key name="basename" type="unique">
-                <column name="basename"/>
-            </key>
-        </table>
-        <table name="certman2_cas">
-            <field name="uid" type="integer" primaryKey="true" autoincrement="true"/>
-            <field name="basename" type="string" length="190"/>
-            <field name="cn" type="string" length="255"/>
-            <field name="on" type="string" length="255"/>
-            <field name="passphrase" type="string" length="255" notnull="false"/>
-            <field name="salt" type="string" length="255" notnull="false"/>
-            <key name="basename" type="unique">
-                <column name="basename"/>
-            </key>
-        </table>
-    </database>
-    <depends>
-        <phpversion>5.6.0</phpversion>
-        <module>core ge 15.0.9.61</module>
-        <version>14.0.3</version>
-    </depends>
-    <console>
-        <command>
-            <name>certificates</name>
-            <class>Certman2</class>
-        </command>
-    </console>
+	<rawname>certman</rawname>
+	<name>Certificate Manager</name>
+	<repo>standard</repo>
+	<version>16.0.30</version>
+	<publisher>Sangoma Technologies Corporation</publisher>
+	<license>AGPLv3+</license>
+	<licenselink>http://www.gnu.org/licenses/agpl-3.0.txt</licenselink>
+	<menuitems>
+		<certman>Certificate Management</certman>
+	</menuitems>
+	<description>
+		Certificate Manager for Asterisk. Used for TLS, DTLS connection (think WebRTC and secure traffic)
+	</description>
+	<more-info>https://wiki.freepbx.org/display/FPG/Certificate+Management+Module</more-info>
+	<changelog>
+                *17.0.00* Adding DNS Challenges to the Letsencrypt option
+		*16.0.30* Packaging of ver 16.0.30
+		*16.0.29* FREEI-114 certificate update notification change in dashboard 
+		*16.0.28* FREEPBX-24228 
+		*16.0.27* FREEPBX-24181 
+		*16.0.26* FREEI-5808 
+		*16.0.25* FREEPBX-23937 
+		*16.0.24* FREEPBX-23711 
+		*16.0.23* FREEI-4900 LE not updating when cert is expired 
+		*16.0.22* Reverting Bootstrap and dependent libs fixes 
+		*16.0.21* FREEI-4793 
+		*16.0.20* Fixing FREEPBX-23248 
+		*16.0.19* FREEI-4037 Add option to remove DST Root CA X3 from LE certificate bundle 
+		*16.0.18* FREEI-3995 Swaped implode() function parameters 
+		*16.0.17* FREEPBX-22849 Fix for Let'\''s encrypt root CA 
+		*16.0.16* FREEI-3758 Created new GQL API to update certificate to default 
+		*16.0.15* Adding an option to mark uploaded ssl certificate as default 
+		*16.0.14* FREEPBX-22660 Changed array key name cid to certificate while restoring dtls options 
+		*16.0.13* FREEPBX-20610 added logic to write out proper fullchain file 
+		*16.0.12* FREEPBX-21681 
+		*16.0.11* Packaging of ver 16.0.11
+		*16.0.10* Packaging of ver 16.0.10
+		*16.0.9* FREEI-2599 New extension created with multiple entries for media_encryption 
+		*16.0.8* FREEPBX-22123 / add config hints when cert request fails 
+		*16.0.7* FREEPBX-22106-format-letsencrypt-output-display-error-messages 
+		*16.0.6* FREEI-2109 added option to do force update 
+		*16.0.5* Forceupdatebranch 
+		*16.0.4* FREEPBX-21683 fwconsole certificate update error silently shuts down firewall module 
+		*16.0.3* FREEPBX-21600 fixing -SRTP selection was Enabling DTLS 
+		*16.0.2* Bugfix/FREEI-1464 
+		*16.0.1alpha* 16.0.1 alpha release
+	</changelog>
+	<category>Admin</category>
+	<supported>
+		<version>16.0</version>
+	</supported>
+	<hooks>
+		<framework class="Chown" namespace="FreePBX\Console\Command">
+			<method callingMethod="fwcChownFiles" class="Certman" namespace="FreePBX\modules">chownFreepbx</method>
+		</framework>
+	</hooks>
+	<database>
+		<table name="certman_mapping">
+			<field name="id" type="string" length="20" primaryKey="true"/>
+			<field name="cid" type="integer" notnull="false"/>
+			<field name="verify" type="string" length="255" notnull="false"/>
+			<field name="setup" type="string" length="45" notnull="false"/>
+			<field name="rekey" type="integer" notnull="false"/>
+			<field name="auto_generate_cert" type="boolean" default="0"/>
+		</table>
+		<table name="certman_csrs">
+			<field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
+			<field name="basename" type="string" length="190"/>
+			<key name="basename" type="unique">
+				<column name="basename"/>
+			</key>
+		</table>
+		<table name="certman_certs">
+			<field name="cid" type="integer" primaryKey="true" autoincrement="true"/>
+			<field name="caid" type="integer" notnull="false"/>
+			<field name="basename" type="string" length="190"/>
+			<field name="description" type="string" length="255" notnull="false"/>
+			<field name="type" type="string" length="2" default="ss"/>
+			<field name="default" type="boolean" default="0"/>
+			<field name="additional" type="blob" notnull="false"/>
+			<key name="basename_UNIQUE" type="unique">
+				<column name="basename"/>
+			</key>
+			<key name="basename" type="unique">
+				<column name="basename"/>
+			</key>
+		</table>
+		<table name="certman_cas">
+			<field name="uid" type="integer" primaryKey="true" autoincrement="true"/>
+			<field name="basename" type="string" length="190"/>
+			<field name="cn" type="string" length="255"/>
+			<field name="on" type="string" length="255"/>
+			<field name="passphrase" type="string" length="255" notnull="false"/>
+			<field name="salt" type="string" length="255" notnull="false"/>
+			<key name="basename" type="unique">
+				<column name="basename"/>
+			</key>
+		</table>
+	</database>
+	<depends>
+		<phpversion>5.6.0</phpversion>
+		<module>core ge 15.0.9.61</module>
+		<version>14.0.3</version>
+	</depends>
+	<console>
+		<command>
+			<name>certificates</name>
+			<class>Certman</class>
+		</command>
+	</console>
 </module>
-

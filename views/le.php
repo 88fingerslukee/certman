@@ -1,4 +1,4 @@
-<script type='text/javascript' src='modules/certman2/assets/js/views/regions.js?123'></script>
+<script type='text/javascript' src='modules/certman/assets/js/views/regions.js?123'></script>
 <?php
 if (!empty($message)) {
     $messagehtml = '<div class="alert alert-' . $message['type'] . '">' . $message['message'] . '</div>';
@@ -20,7 +20,7 @@ $alert .= "</div>";
             <div class="col-sm-12">
                 <div class="fpbx-container">
                     <div class="display full-border" id='certpage'>
-                        <form class="fpbx-submit" name="frm_certman2" action="config.php?display=certman2" method="post" enctype="multipart/form-data" data-fpbx-delete="config.php?display=certman2&amp;certaction=delete&amp;t=cert&amp;id=<?php echo $cert['cid'] ?>">
+                        <form class="fpbx-submit" name="frm_certman" action="config.php?display=certman" method="post" enctype="multipart/form-data" data-fpbx-delete="config.php?display=certman&amp;certaction=delete&amp;t=cert&amp;id=<?php echo $cert['cid'] ?>">
                             <input id="certaction" type="hidden" name="certaction" value="<?php echo !empty($cert['cid']) ? 'edit' : 'add' ?>">
                             <input id="certtype" type="hidden" name="type" value="le">
                             <input id="cid" type="hidden" name="cid" value="<?php echo !empty($cert['cid']) ? $cert['cid'] : '' ?>">

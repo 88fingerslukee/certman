@@ -3,7 +3,7 @@ if (!defined('FREEPBX_IS_AUTH')) { die('No direct script access allowed'); }
 //	License for all code of this FreePBX module can be found in the license file inside the module directory
 //	Copyright 2014 Schmooze Com Inc.
 //
-function certman2_configpageinit($pagename) {
+function certman_configpageinit($pagename) {
 	global $currentcomponent;
 	global $amp_conf;
 
@@ -23,24 +23,24 @@ function certman2_configpageinit($pagename) {
 	if(!empty($certs)) {
 		// On a 'new' user, 'tech_hardware' is set, and there's no extension. Hook into the page.
 		if ($tech_hardware != null || $pagename == 'users') {
-			$currentcomponent->addguifunc("certman2_devices_configpageload");
-			$currentcomponent->addprocessfunc("certman2_devices_configprocess");
+			$currentcomponent->addguifunc("certman_devices_configpageload");
+			$currentcomponent->addprocessfunc("certman_devices_configprocess");
 		} elseif ($action=="add") {
 			// We don't need to display anything on an 'add', but we do need to handle returned data.
-			$currentcomponent->addprocessfunc("certman2_devices_configprocess");
+			$currentcomponent->addprocessfunc("certman_devices_configprocess");
 		} elseif ($extdisplay != '') {
 			// We're now viewing an extension, so we need to display _and_ process.
-			$currentcomponent->addguifunc("certman2_devices_configpageload");
-			$currentcomponent->addprocessfunc("certman2_devices_configprocess");
+			$currentcomponent->addguifunc("certman_devices_configpageload");
+			$currentcomponent->addprocessfunc("certman_devices_configprocess");
 		}
 	}
 }
 
-function certman2_devices_configpageload() {
-	certman2_configpageload('extension');
+function certman_devices_configpageload() {
+	certman_configpageload('extension');
 }
 
-function certman2_showPjsipDTLSAutoGenerateCertOption($extension) {
+function certman_showPjsipDTLSAutoGenerateCertOption($extension) {
 	if(!FreePBX::CertMan()->pjsipDTLSAutoGenerateCertSupported()) {
 		return false;
 	}
@@ -60,7 +60,7 @@ function certman2_showPjsipDTLSAutoGenerateCertOption($extension) {
 	return false;
 }
 
-function certman2_configpageload($mode) {
+function certman_configpageload($mode) {
 	global $amp_conf;
 	global $currentcomponent;
 	$extdisplay = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:null;
@@ -85,7 +85,7 @@ function certman2_configpageload($mode) {
 		false),6,null,$category
 	);
 
-	if (certman2_showPjsipDTLSAutoGenerateCertOption($extdisplay)) {
+	if (certman_showPjsipDTLSAutoGenerateCertOption($extdisplay)) {
 		$currentcomponent->addguielem($section, new gui_radio(
 			'dtls_auto_generate_cert',
 			array(
@@ -165,11 +165,11 @@ function certman2_configpageload($mode) {
 		false),6,null,$category
 	);
 
-	echo '<script type="text/javascript" src="modules/certman2/assets/js/views/extensionsHook.js"></script>';
+	echo '<script type="text/javascript" src="modules/certman/assets/js/views/extensionsHook.js"></script>';
 
 }
 
-function certman2_devices_configprocess() {
+function certman_devices_configprocess() {
 	$action = isset($_REQUEST['action'])?$_REQUEST['action']:null;
 	$extension = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:null;
 	$tech = isset($_POST['tech'])?$_POST['tech']:null;
