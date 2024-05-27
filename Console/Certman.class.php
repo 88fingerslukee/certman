@@ -19,7 +19,7 @@ use Symfony\Component\Process\Process;
 
 use Symfony\Component\Console\Command\HelpCommand;
 
-class Certman2 extends Command {
+class Certman extends Command {
 	protected function configure(){
 		$pkcs = \FreePBX::create()->PKCS;
 		$loc = $pkcs->getKeysLocation();
@@ -47,7 +47,7 @@ class Certman2 extends Command {
 			));
 	}
 	protected function execute(InputInterface $input, OutputInterface $output){
-		$Certman2 = \FreePBX::create()->Certman2;
+		$Certman = \FreePBX::create()->Certman;
 		$pkcs = \FreePBX::create()->PKCS;
 
 		if($input->getOption('generate')) {
@@ -66,7 +66,7 @@ class Certman2 extends Command {
 					$description = $hostname;
 					$san = array_unique(array_filter(array_map(function ($v) {return strtolower(trim($v));}, $input->getOption('san'))));
 					$force = $input->getOption('force');
-					$cert = $Certman2->getCertificateDetailsByBasename($hostname);
+					$cert = $Certman->getCertificateDetailsByBasename($hostname);
 
 					if (!($hostname && $country_code && $state && $email)) {
 						$output->writeln("<error>"._("Missing required argument(s) - 'hostname', 'country-code', 'state' and 'email' are required")."</error>");
@@ -112,9 +112,9 @@ class Certman2 extends Command {
 							"removeDstRootCaX3" => false,
 						);
 
-						$le_result = $Certman2->updateLE($hostname, $settings, false, $force);
+						$le_result = $Certman->updateLE($hostname, $settings, false, $force);
 						if (!isset($cert['cid'])) {
-							$cid = $Certman2->saveCertificate(
+							$cid = $Certman->saveCertificate(
 								null,
 								$hostname,
 								$description,
@@ -122,7 +122,7 @@ class Certman2 extends Command {
 								$additional
 							);
 						} else {
-							$Certman2->updateCertificate(
+							$Certman->updateCertificate(
 								$cert,
 								$description,
 								$additional
@@ -136,7 +136,7 @@ class Certman2 extends Command {
 						} else {
 							$emessage = $e->getMessage();
 						}
-						$this->showhints($Certman2, $output, $einfo['hints']);
+						$this->showhints($Certman, $output, $einfo['hints']);
 						$output->writeln("<error>LetsEncrypt Update Failure:");
 						$output->writeln($emessage . "</error>");
 						exit(4);
@@ -154,26 +154,26 @@ class Certman2 extends Command {
 
 				case 'default':
 				default:
-					$certs = $Certman2->getAllManagedCertificates();
+					$certs = $Certman->getAllManagedCertificates();
 					if(empty($certs)) {
 						$output->writeln(_("No Certificates exist"));
 
-						if(!$Certman2->checkCAexists()) {
+						if(!$Certman->checkCAexists()) {
 							$output->write(_("Generating default CA..."));
 							$hostname = gethostname();
 							$hostname = !empty($hostname) ? $hostname : 'localhost';
-							$caid = $Certman2->generateCA('ca', $hostname, $hostname);
+							$caid = $Certman->generateCA('ca', $hostname, $hostname);
 							$output->writeln(_("Done!"));
 						} else {
-							$dat = $Certman2->getAllManagedCAs();
+							$dat = $Certman->getAllManagedCAs();
 							$caid = $dat[0]['uid'];
 						}
 
 						$output->write(_("Generating default certificate..."));
 						// Do not i18n the NAME of the cert, it is 'default'.
 						try {
-							$cid = $Certman2->generateCertificate($caid,"default",_("Default Self-Signed certificate"));
-							$Certman2->makeCertDefault($cid);
+							$cid = $Certman->generateCertificate($caid,"default",_("Default Self-Signed certificate"));
+							$Certman->makeCertDefault($cid);
 							$output->writeln(_("Done!"));
 						} catch(\Exception $e) {
 							$output->writeln("<error>".sprintf(_("Failed! [%s]"),$e->getMessage())."</error>");
@@ -191,11 +191,11 @@ class Certman2 extends Command {
 			$id = $input->getOption('delete');
 
 			if (is_numeric($id)) {
-				$certs = $Certman2->getAllManagedCertificates();
+				$certs = $Certman->getAllManagedCertificates();
 				$cid = $certs[$id]['cid'];
 				$hostname = $certs[$id]['basename'];
 			} else {
-				$cert = $Certman2->getCertificateDetailsByBasename($id);
+				$cert = $Certman->getCertificateDetailsByBasename($id);
 				$cid = $cert['cid'];
 				$hostname = $cert['basename'];
 			}
@@ -205,7 +205,7 @@ class Certman2 extends Command {
 				exit(4);
 			}
 
-			$Certman2->removeCertificate($cid);
+			$Certman->removeCertificate($cid);
 			$output->writeln(sprintf(_("Deleted certificate '%s'"),$hostname));
 			return;
 		}
@@ -214,10 +214,10 @@ class Certman2 extends Command {
 			$id = $input->getOption('details');
 
 			if (is_numeric($id)) {
-				$certs = $Certman2->getAllManagedCertificates();
-				$cert = $Certman2->getCertificateDetails($certs[$id]['cid']);
+				$certs = $Certman->getAllManagedCertificates();
+				$cert = $Certman->getCertificateDetails($certs[$id]['cid']);
 			} else {
-				$cert = $Certman2->getCertificateDetailsByBasename($id);
+				$cert = $Certman->getCertificateDetailsByBasename($id);
 			}
 
 			if (empty($cert)) {
@@ -235,7 +235,7 @@ class Certman2 extends Command {
 			if($force) {
 				$output->writeln("<info>" . _("Forced update enabled !!!") . "</info>");
 			}
-			$messages = $Certman2->checkUpdateCertificates($force);
+			$messages = $Certman->checkUpdateCertificates($force);
 			$hints = array();
 			foreach($messages as $message) {
 				if (!empty($message['hints'])) {
@@ -246,7 +246,7 @@ class Certman2 extends Command {
 				}
 			}
 			if ($danger) {
-				$this->showhints($Certman2, $output, array_unique($hints));
+				$this->showhints($Certman, $output, array_unique($hints));
 			}
 			foreach($messages as $message) {
 				$m = $message['message'];
@@ -266,7 +266,7 @@ class Certman2 extends Command {
 		}
 
 		if($input->getOption('list')) {
-			$certs = $Certman2->getAllManagedCertificates();
+			$certs = $Certman->getAllManagedCertificates();
 			$rows = array();
 			foreach ($certs as $key => $c) {
 				$type = '';
@@ -301,7 +301,7 @@ class Certman2 extends Command {
 		}
 
 		if($input->getOption('import')) {
-			$list = $Certman2->importLocalCertificates();
+			$list = $Certman->importLocalCertificates();
 			if(empty($list)) {
 				$loc = $pkcs->getKeysLocation();
 				$output->writeln(_("<info>".sprintf(_("No Certificates to import. Try placing a certificate (<name>.crt) and its key (<name>.key) into %s"),$loc)."</info>"));
@@ -326,11 +326,11 @@ class Certman2 extends Command {
 			$id = $input->getOption('default');
 
 			if (is_numeric($id)) {
-				$certs = $Certman2->getAllManagedCertificates();
+				$certs = $Certman->getAllManagedCertificates();
 				$cid = $certs[$id]['cid'];
 				$hostname = $certs[$id]['basename'];
 			} else {
-				$cert = $Certman2->getCertificateDetailsByBasename($id);
+				$cert = $Certman->getCertificateDetailsByBasename($id);
 				$cid = $cert['cid'];
 				$hostname = $cert['basename'];
 			}
@@ -340,7 +340,7 @@ class Certman2 extends Command {
 				exit(4);
 			}
 
-			$Certman2->makeCertDefault($cid);
+			$Certman->makeCertDefault($cid);
 			$output->writeln(sprintf(_("Successfully set '%s' as the default certificate"),$hostname));
 			return;
 		}
@@ -360,8 +360,8 @@ class Certman2 extends Command {
 		return $help->run($input, $output);
 	}
 
-	private function showhints($Certman2, OutputInterface $output, $hints) {
-		$api = $Certman2->getFirewallAPI();
+	private function showhints($Certman, OutputInterface $output, $hints) {
+		$api = $Certman->getFirewallAPI();
 		$leoptions = $api->getLeOptions();
 		$terminal = new Terminal;
 		$width = $terminal->getWidth() - 10;
