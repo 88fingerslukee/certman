@@ -837,18 +837,13 @@ public function updateLE($host, $settings = false, $staging = false, $force = fa
 
         print(sprintf(_("Processing: %s, Local IP: %s, Public IP: %s\n"), $host, $localip, $publicip));
 
-        // Add DNS challenge support
         if ($needsgen) {
             if ($challengetype === "dns") {
-                $dnsChallenge = new DnsChallenge('cloudflare', [
-                    'apiKey' => 'your-cloudflare-api-key',
-                ]);
+                $dnsProvider = $settings['dnsprovider'];
+                $dnsCredentials = $settings['dnscredentials'];
                 $le = new Lescript($location, $webroot, $logger);
-                $le->setChallengeType($dnsChallenge);
+                $le->useDnsChallenge($dnsProvider, $dnsCredentials);
             } else {
-                // Default to HTTP challenge
-                $tokenpath = $webroot . "/.well-known/acme-challenge";
-                $prechallengefiles = glob($tokenpath . '/*'); // */
                 $le = new Lescript($location, $webroot, $logger);
                 if ($staging) {
                     $le->ca = 'https://acme-staging.api.letsencrypt.org';
@@ -980,6 +975,7 @@ public function updateLE($host, $settings = false, $staging = false, $force = fa
         throw new Exception(json_print_pretty(json_encode($einfo), "  "));
     }
 }
+
 
 
 
