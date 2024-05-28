@@ -783,13 +783,6 @@ class Certman implements BMO {
      * @return boolean          True if success, false if not
      */
     public function updateLE($host, $settings = false, $staging = false, $force = false) {
-        /**
-         * Enable LE rules and set a delay for disabling LE rules.
-         * The time remaining is between 1 and 2 minutes before to close the door.
-         * It's good to close the door even if there is any error before the end of process.
-         * No need to execute a delay if this one is not performed yet.
-         * Using process to handle enable and disable of LE Rules
-         */
         if (!is_array($settings)) {
             throw new Exception("BUG: Settings is not an array. Old code?");
         }
@@ -797,10 +790,11 @@ class Certman implements BMO {
         if (!$this->checkFirewallAndIpset()) {
             throw new Exception("Please install ipset package And Restart the Firewall to continue");
         }
+
         // Get our variables from $settings
         $countryCode = !empty($settings['countryCode']) ? $settings['countryCode'] : 'CA';
         $state = !empty($settings['state']) ? $settings['state'] : 'Ontario';
-        $challengetype = "http"; // Always http
+        $challengetype = !empty($settings['challengetype']) ? $settings['challengetype'] : 'http'; // Default to http
         $email = !empty($settings['email']) ? $settings['email'] : '';
         $san = !empty($settings['san']) ? $settings['san'] : array();
         $removeDstRootCaX3 = !empty($settings['removeDstRootCaX3']) ? $settings['removeDstRootCaX3'] : false;
@@ -924,7 +918,7 @@ class Certman implements BMO {
                 // Add DNS challenge support
                 if ($challengetype === "dns") {
                     $dnsChallenge = new DnsChallenge('cloudflare', [
-                        'apiKey' => 'your-cloudflare-api-key',
+                        'apiKey' => $settings['dnsApiKey'], // Use the API key from settings
                     ]);
                     $le->setChallengeType($dnsChallenge);
                 }
@@ -1006,6 +1000,7 @@ class Certman implements BMO {
             throw new Exception(json_print_pretty(json_encode($einfo), "  "));
         }
     }
+
 
 	/* enable firewall rules */
 	private function enableFirewallLeRules() {
