@@ -782,199 +782,198 @@ class Certman implements BMO {
      *
      * @return boolean          True if success, false if not
      */
-public function updateLE($host, $settings = false, $staging = false, $force = false) {
-    if (!is_array($settings)) {
-        throw new Exception("BUG: Settings is not an array. Old code?");
-    }
+	public function updateLE($host, $settings = false, $staging = false, $force = false) {
+		if (!is_array($settings)) {
+			throw new Exception("BUG: Settings is not an array. Old code?");
+		}
 
-    // Get the challenge type from settings
-    $challengetype = !empty($settings['challengetype']) ? $settings['challengetype'] : 'http'; // Default to http
-    error_log("Challenge type being used: " . $challengetype);
+		// Get the challenge type from settings
+		$challengetype = !empty($settings['challengetype']) ? $settings['challengetype'] : 'http'; // Default to http
+		error_log("Challenge type being used: " . $challengetype);
 
-    // Get our variables from $settings
-    $countryCode = !empty($settings['countryCode']) ? $settings['countryCode'] : 'CA';
-    $state = !empty($settings['state']) ? $settings['state'] : 'Ontario';
-    $email = !empty($settings['email']) ? $settings['email'] : '';
-    $san = !empty($settings['san']) ? $settings['san'] : array();
-    $removeDstRootCaX3 = !empty($settings['removeDstRootCaX3']) ? $settings['removeDstRootCaX3'] : false;
+		// Get our variables from $settings
+		$countryCode = !empty($settings['countryCode']) ? $settings['countryCode'] : 'CA';
+		$state = !empty($settings['state']) ? $settings['state'] : 'Ontario';
+		$email = !empty($settings['email']) ? $settings['email'] : '';
+		$san = !empty($settings['san']) ? $settings['san'] : array();
+		$removeDstRootCaX3 = !empty($settings['removeDstRootCaX3']) ? $settings['removeDstRootCaX3'] : false;
 
-    $location = $this->PKCS->getKeysLocation();
-    $logger = $this->FreePBX->Logger->monoLog;
-    $host = basename($host);
-    $certpath = $location . "/" . $host;
-    array_unshift($san, $host);
+		$location = $this->PKCS->getKeysLocation();
+		$logger = $this->FreePBX->Logger->monoLog;
+		$host = basename($host);
+		$certpath = $location . "/" . $host;
+		array_unshift($san, $host);
 
-    $needsgen = false;
-    $certfile = $certpath . "/" . $host . "/cert.pem";
+		$needsgen = false;
+		$certfile = $certpath . "/" . $host . "/cert.pem";
 
-    $user = $this->FreePBX->Config->get("AMPASTERISKWEBUSER");
-    $group = $this->FreePBX->Config->get("AMPASTERISKWEBGROUP");
-    $webroot = $this->FreePBX->Config->get("AMPWEBROOT");
+		$user = $this->FreePBX->Config->get("AMPASTERISKWEBUSER");
+		$group = $this->FreePBX->Config->get("AMPASTERISKWEBGROUP");
+		$webroot = $this->FreePBX->Config->get("AMPWEBROOT");
 
-    $hints = array();
+		$hints = array();
 
-    if (!file_exists($certfile)) {
-        // We don't have a cert, so we need to request one.
-        $needsgen = true;
-    } else {
-        // We DO have a certificate.
-        $certdata = openssl_x509_parse(file_get_contents($certfile));
-        // If it expires in less than a month, we want to renew it.
-        $renewafter = $certdata['validTo_time_t'] - (86400 * $this->days_expiration_alert);
-        if (time() > $renewafter || $force) {
-            // Less than a month left, we need to renew.
-            $needsgen = true;
-        }
-    }
+		if (!file_exists($certfile)) {
+			// We don't have a cert, so we need to request one.
+			$needsgen = true;
+		} else {
+			// We DO have a certificate.
+			$certdata = openssl_x509_parse(file_get_contents($certfile));
+			// If it expires in less than a month, we want to renew it.
+			$renewafter = $certdata['validTo_time_t'] - (86400 * $this->days_expiration_alert);
+			if (time() > $renewafter || $force) {
+				// Less than a month left, we need to renew.
+				$needsgen = true;
+			}
+		}
 
-    try {
-        $this->enableFirewallLeRules();
+		try {
+			$this->enableFirewallLeRules();
 
-        $localip = gethostbyname($host);
-        $localip = @inet_pton($localip) ? $localip : 'dns error';
-        $publicip = $this->getPublicIP($host);
-        $publicip = (!empty($publicip) && @inet_pton($publicip[0])) ? $publicip[0] : 'dns error';
+			$localip = gethostbyname($host);
+			$localip = @inet_pton($localip) ? $localip : 'dns error';
+			$publicip = $this->getPublicIP($host);
+			$publicip = (!empty($publicip) && @inet_pton($publicip[0])) ? $publicip[0] : 'dns error';
 
-        print(sprintf(_("Processing: %s, Local IP: %s, Public IP: %s\n"), $host, $localip, $publicip));
+			print(sprintf(_("Processing: %s, Local IP: %s, Public IP: %s\n"), $host, $localip, $publicip));
 
-        if ($needsgen) {
-            if ($challengetype === "dns") {
-                $dnsProvider = $settings['dnsprovider'];
-                $dnsCredentials = $settings['dnscredentials'];
-                $le = new Lescript($location, $webroot, $logger);
-                $le->useDnsChallenge($dnsProvider, $dnsCredentials);
-            } else {
-                $le = new Lescript($location, $webroot, $logger);
-                if ($staging) {
-                    $le->ca = 'https://acme-staging.api.letsencrypt.org';
-                }
-                $le->countryCode = $countryCode;
-                $le->state = $state;
-                if (!empty($email)) {
-                    $le->contact = array("mailto:" . $email);
-                }
-                $le->initAccount();
+			if ($needsgen) {
+				$le = new Lescript($location, $webroot, $logger);
+				if ($staging) {
+					$le->ca = 'https://acme-staging.api.letsencrypt.org';
+				}
+				$le->countryCode = $countryCode;
+				$le->state = $state;
+				if (!empty($email)) {
+					$le->contact = array("mailto:" . $email);
+				}
+				$le->initAccount();
 
-                // Self-test first
-                $token = bin2hex(openssl_random_pseudo_bytes(16));
-                $pathCheck = "/.freepbx-known/" . $token;
-                file_put_contents($webroot . $pathCheck, $token);
+				if ($challengetype === "dns") {
+					$dnsProvider = $settings['dnsprovider'];
+					$dnsCredentials = $settings['dnscredentials'];
+					$le->useDnsChallenge($dnsProvider, $dnsCredentials);
+				} else {
+					// Self-test first
+					$token = bin2hex(openssl_random_pseudo_bytes(16));
+					$pathCheck = "/.freepbx-known/" . $token;
+					file_put_contents($webroot . $pathCheck, $token);
 
-                print(_("Self test: trying ") . "http://" . $host . $pathCheck . "\n");
-                $pest = new \Pest("http://".$host);
-                $pest->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
-                $pest->curl_opts[CURLOPT_CONNECTTIMEOUT] = 5;
-                $pest->curl_opts[CURLOPT_TIMEOUT] = 5;
-                try {
-                    $selftest = $pest->get($pathCheck);
-                } catch(Exception $e) {
-                    $selftesterr = _("Self test error: ") . get_class($e) . " - " . trim(strip_tags($e->getMessage()));
-                    $hints[] = sprintf(_("Does DNS for %s resolve correctly?\nLocal DNS result: %s, External DNS result: %s"), $host, $localip, $publicip);
-                    print($selftesterr ."\n");
-                    @unlink($webroot.$pathCheck);
-                    throw new Exception(json_print_pretty(json_encode(array('type' => 'selftest', 'detail' => $selftesterr)), "  "));
-                }
-                if(empty($selftest)) {
-                    $selftesterr = _("Self test error: no token data");
-                    print($selftesterr ."\n");
-                    @unlink($webroot.$pathCheck);
-                    throw new Exception($selftesterr);
-                }
-                print("Self test: received ". $selftest . "\n");
+					print(_("Self test: trying ") . "http://" . $host . $pathCheck . "\n");
+					$pest = new \Pest("http://".$host);
+					$pest->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
+					$pest->curl_opts[CURLOPT_CONNECTTIMEOUT] = 5;
+					$pest->curl_opts[CURLOPT_TIMEOUT] = 5;
+					try {
+						$selftest = $pest->get($pathCheck);
+					} catch(Exception $e) {
+						$selftesterr = _("Self test error: ") . get_class($e) . " - " . trim(strip_tags($e->getMessage()));
+						$hints[] = sprintf(_("Does DNS for %s resolve correctly?\nLocal DNS result: %s, External DNS result: %s"), $host, $localip, $publicip);
+						print($selftesterr ."\n");
+						@unlink($webroot.$pathCheck);
+						throw new Exception(json_print_pretty(json_encode(array('type' => 'selftest', 'detail' => $selftesterr)), "  "));
+					}
+					if(empty($selftest)) {
+						$selftesterr = _("Self test error: no token data");
+						print($selftesterr ."\n");
+						@unlink($webroot.$pathCheck);
+						throw new Exception($selftesterr);
+					}
+					print("Self test: received ". $selftest . "\n");
 
-                // Check freepbx.org
-                try {
-                    $pest = new \PestJSON('http://mirror1.freepbx.org');
-                    $pest->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
-                    $pest->curl_opts[CURLOPT_CONNECTTIMEOUT] = 10;
-                    $pest->curl_opts[CURLOPT_TIMEOUT] = 30;
-                    $thing = $pest->get('/lechecker.php', array('host' => $host, 'path' => $pathCheck, 'token' => $token, 'type' => $challengetype));
-                    if(empty($thing)) {
-                        $lecheckerr = _("No valid response from http://mirror1.freepbx.org");
-                    } elseif(!$thing['status']) {
-                        $lecheckerr = $thing['message'];
-                    }
-                } catch(Exception $e) {
-                    $lecheckerr =  _("lechecker: ") . get_class($e) . " - " . trim(strip_tags($e->getMessage()));
-                }
-                if ($lecheckerr) {
-                    print($lecheckerr . "\n");
-                    $hints[] = $lecheckerr;
-                }
-                @unlink($webroot.$pathCheck);
-            }
+					// Check freepbx.org
+					try {
+						$pest = new \PestJSON('http://mirror1.freepbx.org');
+						$pest->curl_opts[CURLOPT_FOLLOWLOCATION] = true;
+						$pest->curl_opts[CURLOPT_CONNECTTIMEOUT] = 10;
+						$pest->curl_opts[CURLOPT_TIMEOUT] = 30;
+						$thing = $pest->get('/lechecker.php', array('host' => $host, 'path' => $pathCheck, 'token' => $token, 'type' => $challengetype));
+						if(empty($thing)) {
+							$lecheckerr = _("No valid response from http://mirror1.freepbx.org");
+						} elseif(!$thing['status']) {
+							$lecheckerr = $thing['message'];
+						}
+					} catch(Exception $e) {
+						$lecheckerr =  _("lechecker: ") . get_class($e) . " - " . trim(strip_tags($e->getMessage()));
+					}
+					if ($lecheckerr) {
+						print($lecheckerr . "\n");
+						$hints[] = $lecheckerr;
+					}
+					@unlink($webroot.$pathCheck);
+				}
 
-            $le->signDomains($san);
-        }
-        $this->disableFirewallLeRules();
+				$le->signDomains($san);
+			}
+			$this->disableFirewallLeRules();
 
-        if (!file_exists($certpath . "/private.pem") || !file_exists($certpath . "/cert.pem")) {
-            throw new Exception(_("Certificates are missing. Unable to continue"));
-        }
+			if (!file_exists($certpath . "/private.pem") || !file_exists($certpath . "/cert.pem")) {
+				throw new Exception(_("Certificates are missing. Unable to continue"));
+			}
 
-        if (file_exists($certpath)) {
-            copy($certpath . "/private.pem", $certpath . ".key"); //webserver.key
-            copy($certpath . "/cert.pem", $certpath . ".crt"); //webserver.crt
+			if (file_exists($certpath)) {
+				copy($certpath . "/private.pem", $certpath . ".key"); //webserver.key
+				copy($certpath . "/cert.pem", $certpath . ".crt"); //webserver.crt
 
-            if ($removeDstRootCaX3) {
-                $caBundleContents = file_get_contents($certpath . "/chain.pem");
-                $certs = $this->parseCaBundle($caBundleContents);
-                $certs = $this->removeDstRootCaX3FromBundle($certs);
-                file_put_contents($certpath . "-ca-bundle.crt", implode("\n", $certs) . "\n");
-            } else {
-                copy($certpath . "/chain.pem", $certpath . "-ca-bundle.crt");
-            }
+				if ($removeDstRootCaX3) {
+					$caBundleContents = file_get_contents($certpath . "/chain.pem");
+					$certs = $this->parseCaBundle($caBundleContents);
+					$certs = $this->removeDstRootCaX3FromBundle($certs);
+					file_put_contents($certpath . "-ca-bundle.crt", implode("\n", $certs) . "\n");
+				} else {
+					copy($certpath . "/chain.pem", $certpath . "-ca-bundle.crt");
+				}
 
-            $key = file_get_contents($certpath . ".key");
-            $cert = file_get_contents($certpath . ".crt");
-            $bundle = file_get_contents($certpath . "-ca-bundle.crt");
-            file_put_contents($certpath . "-fullchain.crt", $cert . "\n" . $bundle);
-            file_put_contents($certpath . ".pem", $key . "\n" . $cert . "\n" . $bundle);
+				$key = file_get_contents($certpath . ".key");
+				$cert = file_get_contents($certpath . ".crt");
+				$bundle = file_get_contents($certpath . "-ca-bundle.crt");
+				file_put_contents($certpath . "-fullchain.crt", $cert . "\n" . $bundle);
+				file_put_contents($certpath . ".pem", $key . "\n" . $cert . "\n" . $bundle);
 
-            $chown[] = $certpath;
-            $exts = array(".key", ".crt", ".pem", "-ca-bundle.crt");
-            foreach ($exts as $ext) {
-                chmod($certpath . $ext, 0600);
-                $chown[] = $certpath . $ext;
-            }
-            $lefiles = array_diff(scandir($certpath), array('..', '.'));
-            foreach ($lefiles as $lefile) {
-                chmod($certpath . "/" . $lefile, 0600);
-                $chown[] = $certpath . "/" . $lefile;
-            }
-        }
-        if (file_exists($location . "/_account")) {
-            $chown[] = $location . "/_account";
-            $lefiles = array_diff(scandir($location . "/_account"), array('..', '.'));
-            foreach ($lefiles as $lefile) {
-                chmod($location . "/_account/" . $lefile, 0600);
-                $chown[] = $location . "/_account/" . $lefile;
-            }
-        }
-        if (!empty($chown) && posix_geteuid() === 0) {
-            foreach ($chown as $file) {
-                chown($file, $user);
-                chgrp($file, $group);
-            }
-        }
-        return true;
-    } catch (Exception $e) {
-        $this->disableFirewallLeRules();
-        @unlink($webroot . $pathCheck);
-        if (is_dir($tokenpath)) {
-            $postchallengefiles = array_diff(glob($tokenpath . '/*'), $prechallengefiles);
-            foreach ($postchallengefiles as $tokenfile) {
-                if (is_file($tokenfile)) @unlink($tokenfile);
-            }
-        }
-        $einfo = json_decode(substr($e->getMessage(), strpos($e->getMessage(), '{')), true);
-        if (!$einfo) $einfo = array();
-        $einfo['detail'] = !empty($einfo['detail']) ? $einfo['detail'] : $e->getMessage();
-        $einfo['type'] = !empty($einfo['type']) ? $einfo['type'] : "unknown";
-        $einfo['hints'] = !empty($einfo['hints']) ? array_merge($hints, $einfo['hints']) : $hints;
-        throw new Exception(json_print_pretty(json_encode($einfo), "  "));
-    }
-}
+				$chown[] = $certpath;
+				$exts = array(".key", ".crt", ".pem", "-ca-bundle.crt");
+				foreach ($exts as $ext) {
+					chmod($certpath . $ext, 0600);
+					$chown[] = $certpath . $ext;
+				}
+				$lefiles = array_diff(scandir($certpath), array('..', '.'));
+				foreach ($lefiles as $lefile) {
+					chmod($certpath . "/" . $lefile, 0600);
+					$chown[] = $certpath . "/" . $lefile;
+				}
+			}
+			if (file_exists($location . "/_account")) {
+				$chown[] = $location . "/_account";
+				$lefiles = array_diff(scandir($location . "/_account"), array('..', '.'));
+				foreach ($lefiles as $lefile) {
+					chmod($location . "/_account/" . $lefile, 0600);
+					$chown[] = $location . "/_account/" . $lefile;
+				}
+			}
+			if (!empty($chown) && posix_geteuid() === 0) {
+				foreach ($chown as $file) {
+					chown($file, $user);
+					chgrp($file, $group);
+				}
+			}
+			return true;
+		} catch (Exception $e) {
+			$this->disableFirewallLeRules();
+			@unlink($webroot . $pathCheck);
+			if (is_dir($tokenpath)) {
+				$postchallengefiles = array_diff(glob($tokenpath . '/*'), $prechallengefiles);
+				foreach ($postchallengefiles as $tokenfile) {
+					if (is_file($tokenfile)) @unlink($tokenfile);
+				}
+			}
+			$einfo = json_decode(substr($e->getMessage(), strpos($e->getMessage(), '{')), true);
+			if (!$einfo) $einfo = array();
+			$einfo['detail'] = !empty($einfo['detail']) ? $einfo['detail'] : $e->getMessage();
+			$einfo['type'] = !empty($einfo['type']) ? $einfo['type'] : "unknown";
+			$einfo['hints'] = !empty($einfo['hints']) ? array_merge($hints, $einfo['hints']) : $hints;
+			throw new Exception(json_print_pretty(json_encode($einfo), "  "));
+		}
+	}
 
 
 
